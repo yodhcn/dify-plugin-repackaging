@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Make plugin_repackaging.sh executable
         run: chmod +x ./plugin_repackaging.sh
@@ -38,15 +38,17 @@ jobs:
       - name: Find repackaged artifact
         id: artifact
         run: |
-          ARTIFACT=$(find . -type f -name '*-offline.difypkg' | head -n 1)
-          if [ -z "$ARTIFACT" ]; then
+          ARTIFACT_PATH=$(find . -type f -name '*-offline.difypkg' | head -n 1)
+          if [ -z "$ARTIFACT_PATH" ]; then
             echo "No -offline.difypkg artifact found!"
             exit 1
           fi
-          echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
+          ARTIFACT_NAME=$(basename "$ARTIFACT_PATH")
+          echo "artifact=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
+          echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: repackaged-plugin
+          name: ${{ steps.artifact.outputs.artifact_name }}
           path: ${{ steps.artifact.outputs.artifact }}
